@@ -1,0 +1,114 @@
+function onOpen() {
+  DocumentApp.getUi()
+    .createMenu('Nx TOC')
+    .addItem('Refresh Table of Contents', 'generateTabTOC')
+    .addToUi();
+}
+
+function generateTabTOC() {
+  const doc = DocumentApp.getActiveDocument();
+  
+  // Find TOC tab — case-insensitive
+  let tocTab = null;
+  const allTabsFlat = getAllTabs(doc);
+  for (const tab of allTabsFlat) {
+    const title = tab.getTitle().toLowerCase().trim();
+    if (title === 'table of contents' || title === 'toc') {
+      tocTab = tab;
+      break;
+    }
+  }
+  
+  if (!tocTab) {
+    showTocAlert();
+    return;
+  }
+  
+  const body = tocTab.asDocumentTab().getBody();
+  body.clear();
+  
+  // === Document Title at the very top (Heading 1 + Underlined) ===
+  const docTitle = doc.getName();
+  const titlePara = body.appendParagraph(docTitle);
+  titlePara.setHeading(DocumentApp.ParagraphHeading.HEADING1);
+  titlePara.setUnderline(true);        // ← This makes it underlined
+  
+  // Blank line after TOC heading
+  // body.appendParagraph('');
+
+  // === Original TOC Heading (Heading 1) ===
+  const heading = body.appendParagraph(tocTab.getTitle());
+  heading.setHeading(DocumentApp.ParagraphHeading.HEADING1);
+  
+  // Blank line after TOC heading
+  body.appendParagraph('');
+  
+  // Build hierarchical TOC
+  appendTabsWithIndent(body, doc.getTabs(), 0, doc.getId());
+  
+  // After last tab: 2 blank lines + horizontal rule
+  body.appendParagraph('');
+  body.appendParagraph('');
+  body.appendParagraph('');
+  body.appendParagraph('');
+  body.appendHorizontalRule();
+}
+
+// Nicer HTML pop-up (height now 440)
+function showTocAlert() {
+  const html = HtmlService.createHtmlOutput(`
+    <div style="font-family: Arial, sans-serif; padding: 10px;">
+      <h2 style="color: #1a73e8;">No Table of Contents tab found</h2>
+      <p>Please create a new tab in the left sidebar and name it exactly one of these:</p>
+      <ul>
+        <li><b>"Table of Contents"</b></li>
+        <li><b>"TOC"</b></li>
+      </ul>
+      <p>After you create and name the tab, simply run the command again:</p>
+      <p style="background-color: #f1f3f4; padding: 8px; border-radius: 4px;">
+        <b>Nx TOC → Refresh Table of Contents</b>
+      </p>
+      <p style="font-size: 0.9em; color: #5f6368; margin-top: 20px;">
+        Tip: You can drag the new tab to any position you like.
+      </p>
+    </div>
+  `)
+  .setWidth(460)
+  .setHeight(440);   // ← Updated height
+  
+  DocumentApp.getUi().showModalDialog(html, 'Missing TOC Tab');
+}
+
+// Recursive function for nested tabs with indentation
+function appendTabsWithIndent(body, tabs, level, docId) {
+  const indentPerLevel = 36;
+  
+  tabs.forEach(tab => {
+    const title = tab.getTitle();
+    const lowerTitle = title.toLowerCase().trim();
+    if (lowerTitle === 'table of contents' || lowerTitle === 'toc') return;
+    
+    const para = body.appendParagraph('• ' + title);
+    const link = `https://docs.google.com/document/d/${docId}/edit?tab=${tab.getId()}`;
+    para.setLinkUrl(link);
+    
+    para.setIndentStart(level * indentPerLevel);
+    para.setIndentFirstLine(level * indentPerLevel);
+    
+    const children = tab.getChildTabs();
+    if (children.length > 0) {
+      appendTabsWithIndent(body, children, level + 1, docId);
+    }
+  });
+}
+
+// Helper
+function getAllTabs(doc) {
+  const allTabs = [];
+  function addTabAndChildren(tab) {
+    allTabs.push(tab);
+    tab.getChildTabs().forEach(child => addTabAndChildren(child));
+  }
+  doc.getTabs().forEach(tab => addTabAndChildren(tab));
+  return allTabs;
+}
