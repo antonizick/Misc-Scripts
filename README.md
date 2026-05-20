@@ -1,30 +1,63 @@
 # Google Scripts
 
-Collection of Google Apps Scripts for automating Google Docs workflows.
+A collection of Google Apps Scripts for automating and enhancing Google Workspace documents.
+
+## Purpose
+
+This repository contains custom Google Apps Scripts designed to extend and automate functionality in Google Docs. These scripts are built to solve specific automation challenges and improve document workflows.
 
 ## Scripts
 
-### Table of Contents (`tableofcontents`)
+### Table of Contents Generator (`tableofcontents`)
 
-Automatically generates a navigable table of contents for Google Documents using the tabs feature.
+**Purpose:** Automatically generate and refresh a table of contents in Google Docs with support for hierarchical tab navigation.
 
-**What it does:**
-- Adds a custom `Nx TOC` menu to Google Docs
-- Finds a tab named `Table of Contents` or `TOC` and populates it with a hierarchical list of all document tabs
-- Each entry is a clickable link that navigates directly to that tab
-- Supports nested (child) tabs with proportional indentation
-- Includes the document title as an underlined heading at the top
+**Features:**
+- Creates a clickable table of contents with direct links to each document tab
+- Supports nested tab hierarchies with visual indentation
+- Automatically finds and populates a designated TOC tab
+- Refreshes on demand via custom menu command
+- Handles both "Table of Contents" and "TOC" tab name variants (case-insensitive)
 
-**How to use:**
-1. Open the Google Doc in Google Apps Script editor (Extensions > Apps Script)
-2. Paste the script content and deploy
-3. Create a tab in the document named `Table of Contents` or `TOC`
-4. Run `Nx TOC > Refresh Table of Contents` from the menu
+**Usage:**
+1. In your Google Doc, create a new tab and name it either "Table of Contents" or "TOC"
+2. Open the Apps Script editor (Extensions → Apps Script)
+3. Paste the `tableofcontents` script code
+4. Save and run the `onOpen()` function
+5. Reload your document
+6. Use the **Nx TOC** menu → **Refresh Table of Contents** to generate or update the TOC
+
+**How It Works:**
+- Creates a bulleted list of all tabs with direct links
+- Applies proper indentation for nested tab structure
+- Displays document title as a heading above the TOC
+- Separates TOC from document body with a horizontal rule
+
+## Getting Started
+
+1. Copy a script from this repository
+2. Open your target Google Doc
+3. Go to **Extensions → Apps Script**
+4. Paste the script code into the editor
+5. Save and authorize the script
+6. Reload your Google Doc to activate the custom menu
 
 ## Adding New Scripts
 
-Each script lives as a standalone file in this directory. Name the file after its function (no extension needed — these are Google Apps Script files, not local code).
+To add a new script to this collection:
+1. Create a new file with a descriptive name
+2. Add the Google Apps Script code
+3. Update this README with the script's purpose and usage instructions
+4. Commit to this repository
 
-## Installation
+## Requirements
 
-Scripts are copied into the Google Apps Script editor of the target document or add-on. They run in Google's sandbox and require appropriate OAuth scopes.
+- Google Docs document
+- Google account with Apps Script access
+- Appropriate permissions to modify the document
+
+## Notes
+
+- All scripts are designed to be pasted directly into Google Apps Script editors
+- Scripts require explicit user authorization when first run
+- Custom menus appear after script execution and document reload
