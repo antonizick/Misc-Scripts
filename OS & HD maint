@@ -1,0 +1,6 @@
+Run weekly: 
+
+sfc /scannow
+DISM /Online /Cleanup-Image /RestoreHealth
+
+chkdsk C: /f /r (schedule reboot)
