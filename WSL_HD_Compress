@@ -1,0 +1,18 @@
+sudo apt clean
+sudo apt autoremove -y
+dd if=/dev/zero of=~/zero.fill bs=1M || true
+rm ~/zero.fill
+
+
+wsl --shutdown
+
+diskpart
+
+
+select vdisk file="C:\Users\nick\wsl\prod\ext4.vhdx"
+attach vdisk readonly
+compact vdisk
+
+detach vdisk
+exit
+
